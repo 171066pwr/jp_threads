@@ -1,5 +1,6 @@
 package com.mycompany.app.model.creator;
 
+import com.mycompany.app.model.concurrency.PausableRunnable;
 import com.mycompany.app.model.map.Area;
 import com.mycompany.app.model.map.ObjectType;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Log4j2
-public class Creator implements Runnable {
+public class Creator implements PausableRunnable {
     private Area area;
     private int retryLimit = 100;
     private int maxUnits;
@@ -31,10 +32,11 @@ public class Creator implements Runnable {
 
     @Override
     public void run() {
-        while(true) {
+        while(!Thread.currentThread().isInterrupted()) {
+            checkPaused();
             try{
                 spawn();
-                Thread.sleep(period * 1000);
+                Thread.sleep(period * 10);
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -60,11 +62,13 @@ public class Creator implements Runnable {
     }
 
     private void createUnit() throws CreationFailedException {
+        log.info("Creating unit...");
         Point point = getRandomLocation();
         ObjectType type = calculateSpawnWinner();
         if(!area.create(point, type)) {
             throw new CreationFailedException(String.format("Point [%d, %d] already occupied", point.x, point.y));
         }
+        log.info("Unit created");
     }
 
     private ObjectType calculateSpawnWinner() {
@@ -99,7 +103,7 @@ public class Creator implements Runnable {
         @Builder.Default
         public int retryLimit = 100;
         @Builder.Default
-        public int maxUnits = 50;
+        public int maxUnits = 500;
         @Builder.Default
         public long period = 1;
         @Builder.Default

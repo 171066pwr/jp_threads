@@ -1,14 +1,18 @@
 package com.mycompany.app.model.units;
 
-import com.mycompany.app.model.map.Area;
-import com.mycompany.app.model.map.GameObject;
-import com.mycompany.app.model.map.ObjectType;
-import com.mycompany.app.model.map.Unit;
+import com.mycompany.app.model.map.*;
 
 public class Scout extends GameObject implements Unit {
     public Scout(Area area) {
         super(area, ObjectType.SCOUT);
     }
+
+    @Override
+    protected GameEvent act() {
+        orientation = orientation.turnLeft(1);
+        return new GameEvent(coordinates, this, GameEvent.EventType.ROTATION);
+    }
+
     @Override
     public boolean remove() {
         return false;
@@ -27,10 +31,5 @@ public class Scout extends GameObject implements Unit {
     @Override
     public boolean push(int x, int y, int vectorX, int vectorY) {
         return false;
-    }
-
-    @Override
-    public void run() {
-
     }
 }

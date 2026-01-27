@@ -9,7 +9,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Stage;
 
@@ -22,15 +21,13 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         GraphicProvider graphicProvider = GraphicProvider.getInstance();
-        ButtonBoard board = new ButtonBoard(20, 20, graphicProvider);
+        ButtonBoard board = new ButtonBoard(30, 30, graphicProvider);
 
         Scene scene = board.createScene();
         primaryStage.setScene(scene);
         board.repaintAll();
         primaryStage.show();
-        //board.start();
-        //PerfTest runner = new PerfTest(buttons);
-        //new Thread(runner).start();
+        board.start();
     }
 
     List<Background> loadFrames() {
@@ -60,7 +57,7 @@ public class Main extends Application {
         @Override
         public void run() {
             long iterations = 0;
-            while(true) {
+            while(!Thread.currentThread().isInterrupted()) {
                 System.out.println("" + iterations);
                 Platform.runLater(new Runnable() {
                     @Override

@@ -22,18 +22,16 @@ public class GraphicButton extends Button {
     public void reset() {
         state = 0;
         frames = null;
-        repaint();
     }
 
     public void incrementState() {
         if(frames != null) {
             state = (state + 1)%frames.size();
-            repaint();
         }
-        setText(state+"");
     }
 
     public void repaint() {
+        setText(state+"");
         if(frames != null) {
             this.setBackground(frames.get(state));
         } else {

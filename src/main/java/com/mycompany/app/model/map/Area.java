@@ -1,5 +1,8 @@
 package com.mycompany.app.model.map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Area {
+    private static final Logger log = LogManager.getLogger(Area.class);
     public final int width;
     public final int height;
     private final Tile[][] tiles;
@@ -30,9 +34,11 @@ public class Area {
             return false;
         } else {
             GameObject object = type.create(this);
+            object.setCoordinates(point);
             objects.add(object);
             tile.add(object);
             notifyListeners(new GameEvent(point, object, GameEvent.EventType.CREATION));
+            new Thread(object).start();
             return true;
         }
     }
@@ -59,7 +65,8 @@ public class Area {
         listeners.add(listener);
     }
 
-    private void notifyListeners(GameEvent event) {
+    void notifyListeners(GameEvent event) {
+        log.info(String.format("Event: #%dl %s", event.object().getId(), event.eventType().toString()));
         for (GameEventListener listener : listeners) {
             listener.acceptEvent(event);
         }

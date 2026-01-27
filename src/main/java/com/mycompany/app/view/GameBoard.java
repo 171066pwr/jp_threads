@@ -1,12 +1,24 @@
 package com.mycompany.app.view;
 
+import com.mycompany.app.model.concurrency.PausableRunnable;
 import com.mycompany.app.model.creator.Creator;
 import com.mycompany.app.model.map.Area;
+import com.mycompany.app.model.map.GameEvent;
 import com.mycompany.app.model.map.GameEventListener;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
-public abstract class GameBoard implements GameEventListener {
+import java.util.LinkedList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+@Log4j2
+public abstract class GameBoard implements GameEventListener, PausableRunnable {
     protected Area area;
     protected Creator creator;
+    protected BlockingQueue<GameEvent> events = new LinkedBlockingQueue<>();
 
     public GameBoard(int width, int height) {
         this(width, height, Creator.CreatorOptions.builder().build());
@@ -15,9 +27,32 @@ public abstract class GameBoard implements GameEventListener {
     public GameBoard(int width, int height, Creator.CreatorOptions creatorOptions) {
         this.area = new Area(width, height);
         this.creator = new Creator(area, creatorOptions);
+        area.addListener(this);
     }
 
+    @Override
+    public void run() {
+        while(!Thread.currentThread().isInterrupted()) {
+            checkPaused();
+            if(events.size() > 0) {
+                GameEvent event = events.poll();
+                if(event != null) {
+                    processEvent(event);
+                }
+            }
+        }
+        log.error(Thread.currentThread().getName() + " interrupted");
+    }
+
+    protected abstract void processEvent(GameEvent event);
+
     public void start() {
-        creator.run();
+        new Thread(creator).start();
+        new Thread(this).start();
+    }
+
+    @Override
+    public void acceptEvent(GameEvent event) {
+        events.add(event);
     }
 }
