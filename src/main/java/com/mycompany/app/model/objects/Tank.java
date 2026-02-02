@@ -1,16 +1,19 @@
 package com.mycompany.app.model.objects;
 
-import com.mycompany.app.model.map.*;
+import com.mycompany.app.model.map.Area;
+import com.mycompany.app.model.map.GameEvent;
+import com.mycompany.app.model.map.ObjectType;
+import com.mycompany.app.model.map.Tile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Tank extends GameObject {
-    private final Random rand = new Random();
     private final List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
 
     public Tank(Area area) {
         super(area, ObjectType.TANK);
-        rand.setSeed(System.currentTimeMillis());
         speed = 6;
     }
 
@@ -27,9 +30,7 @@ public class Tank extends GameObject {
                 roll = 99;
             }
             if (probed.isEmpty() || roll < 40) {
-                roll = rand.nextInt(100);
-                int rotation = probed.isEmpty() ? 2 : 1;
-                events.add(roll < 50 ? rotate(-rotation) : rotate(rotation));
+                events.add(randomRotate(probed));
             } else {
                 Tile tile = probed.getFirst();
                 synchronized (tile) {

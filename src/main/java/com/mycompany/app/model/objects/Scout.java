@@ -1,15 +1,16 @@
 package com.mycompany.app.model.objects;
 
-import com.mycompany.app.model.map.*;
+import com.mycompany.app.model.map.Area;
+import com.mycompany.app.model.map.GameEvent;
+import com.mycompany.app.model.map.ObjectType;
+import com.mycompany.app.model.map.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 public class Scout extends GameObject {
     private final int promotion_threshold = 5;
-    private final Random rand = new Random();
 
     public Scout(Area area) {
         super(area, ObjectType.SCOUT);
@@ -31,9 +32,7 @@ public class Scout extends GameObject {
                 roll = 50;
             }
             if (roll < 50) {
-                roll = rand.nextInt(100);
-                int rotation = probed.isEmpty() ? 2: 1;
-                events.add(roll < 50 ? rotate(-rotation) : rotate(rotation));
+                events.add(randomRotate(probed));
             } else {
                 Tile tile = probed.getFirst();
                 synchronized (tile) {

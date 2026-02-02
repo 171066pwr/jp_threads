@@ -105,10 +105,6 @@ public class ButtonBoard extends GameBoard {
         }
     }
 
-    public void repaint(Point p) {
-        repaint(p.x, p.y);
-    }
-
     public void repaint(int x, int y) {
         Platform.runLater(new Painter(buttons[x][y]));
     }

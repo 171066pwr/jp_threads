@@ -8,6 +8,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,6 +29,7 @@ public abstract class GameObject implements PausableRunnable {
     protected int speed = 10;
     protected int experience = 0;
     protected final Area area;
+    protected final Random rand = new Random();
 
     public static void setUpdateTick(int miliseconds) {
         tick.set(miliseconds);
@@ -38,6 +40,7 @@ public abstract class GameObject implements PausableRunnable {
         this.type = type;
         this.id = counter.incrementAndGet();
         orientation = Orientation.NORTH;
+        rand.setSeed(System.currentTimeMillis());
     }
 
     protected abstract List<GameEvent> act();
@@ -95,6 +98,12 @@ public abstract class GameObject implements PausableRunnable {
     protected synchronized GameEvent rotate(int turns) {
         orientation = orientation.turnRight(turns);
         return new GameEvent(coordinates,this, GameEvent.EventType.ROTATION);
+    }
+
+    protected GameEvent randomRotate(List<Tile> probed) {
+        int roll = rand.nextInt(100);
+        int rotation = probed.isEmpty() ? rand.nextInt(3): 1;
+        return (roll < 50 ? rotate(-rotation) : rotate(rotation));
     }
 
     protected boolean spotTarget(Point direction, int depth, List<ObjectType> types) {

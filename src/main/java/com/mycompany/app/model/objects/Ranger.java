@@ -5,18 +5,14 @@ import com.mycompany.app.model.map.GameEvent;
 import com.mycompany.app.model.map.ObjectType;
 import com.mycompany.app.model.map.Tile;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class Ranger extends GameObject {
-    private final Random rand = new Random();
     private final List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
 
     public Ranger(Area area) {
         super(area, ObjectType.RANGER);
         speed = 8;
-        rand.setSeed(System.currentTimeMillis());
     }
 
     @Override
@@ -32,9 +28,7 @@ public class Ranger extends GameObject {
                 roll = 99;
             }
             if(probed.isEmpty() || roll < 40) {
-                roll = rand.nextInt(100);
-                int rotation = probed.isEmpty() ? 2: 1;
-                events.add(roll < 50 ? rotate(-rotation) : rotate(rotation));
+                events.add(randomRotate(probed));
             } else {
                 Tile tile = probed.getFirst();
                 if(roll < 90) {
