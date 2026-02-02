@@ -18,7 +18,7 @@ public class Main extends Application {
         Creator.CreatorOptions creatorOptions = Creator.CreatorOptions.builder()
                 .maxUnits(10)
                 .build();
-        ButtonBoard board = new ButtonBoard(5, 5, graphicProvider, creatorOptions);
+        ButtonBoard board = new ButtonBoard(20, 20, graphicProvider, creatorOptions);
 
         Scene scene = board.createScene();
         primaryStage.setScene(scene);

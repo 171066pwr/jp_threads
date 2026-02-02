@@ -17,11 +17,12 @@ public record GameEvent (
 
     @RequiredArgsConstructor
     public enum EventType {
+        CONSUMPTION(false),
         CREATION(true),
-        MOVE(true),
         DESTRUCTION(true),
+        MOVE(true),
+        PROMOTION(true),
         ROTATION(false);
-
         public final boolean change;
     }
 }

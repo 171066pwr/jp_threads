@@ -1,11 +1,13 @@
 package com.mycompany.app.model.map;
 
 import com.mycompany.app.model.objects.GameObject;
+import lombok.Getter;
 
 import java.awt.*;
 
 public class Tile {
     public final Point coordinates;
+    @Getter
     private GameObject object;
 
     public Tile(int x, int y) {
@@ -28,7 +30,14 @@ public class Tile {
         return false;
     }
 
-    public synchronized boolean isOccupied() {
+    public boolean isOccupied() {
         return object != null;
+    }
+
+    public ObjectType getObjectType() {
+        if(object != null) {
+            return object.getType();
+        }
+        return null;
     }
 }

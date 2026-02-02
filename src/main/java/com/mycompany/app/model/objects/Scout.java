@@ -2,13 +2,14 @@ package com.mycompany.app.model.objects;
 
 import com.mycompany.app.model.map.*;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-public class Scout extends GameObject implements Unit {
-    Random rand = new Random();
+public class Scout extends GameObject {
+    private final int promotion_threshold = 5;
+    private final Random rand = new Random();
 
     public Scout(Area area) {
         super(area, ObjectType.SCOUT);
@@ -16,58 +17,53 @@ public class Scout extends GameObject implements Unit {
     }
 
     @Override
-    protected Optional<GameEvent> act() {
-        int roll = rand.nextInt(100);
-        int limit = 100;
-        GameEvent event = null;
-        while (limit > 0) {
-            if (roll < 50) {
-                roll = rand.nextInt(100);
-                event = roll < 50 ? rotate(-1) : rotate(1);
-                break;
-            } else {
-                List<Tile> probed = probe(orientation.getDirection(), 1);
-                if (!probed.isEmpty()) {
-                    Tile tile = probed.getFirst();
-                    synchronized (tile) {
-                        event = move(tile);
-                    }
-                    break;
-                }
-            }
+    protected List<GameEvent> act() {
+        List<GameEvent> events = new ArrayList<>();
+        int roll;
+        int limit = 20;
+        while (limit > 0 && events.isEmpty()) {
             roll = rand.nextInt(100);
             limit--;
-        }
-        return Optional.ofNullable(event);
-    }
-
-    @Override
-    protected GameEvent remove() {
-        return null;
-    }
-
-    @Override
-    protected GameEvent create(int x, int y, GameObject object) {
-        return null;
-    }
-
-    @Override
-    protected GameEvent move(Tile target) {
-        synchronized (target) {
-            if (target.add(this)) {
-                Point currentPosition = coordinates;
-                if (getCurrentTile() != null) {
-                    getCurrentTile().remove(this);
+            List<Tile> probed = probe(orientation.getDirection(), 1);
+            if(probed.isEmpty()) {
+                roll = 0;
+            } else if(spotTarget(orientation.getDirection(), 3, ObjectType.COOKIE)) {
+                roll = 50;
+            }
+            if (roll < 50) {
+                roll = rand.nextInt(100);
+                int rotation = probed.isEmpty() ? 2: 1;
+                events.add(roll < 50 ? rotate(-rotation) : rotate(rotation));
+            } else {
+                Tile tile = probed.getFirst();
+                synchronized (tile) {
+                    events.addAll(move(tile));
+                    if(experience >= promotion_threshold) {
+                        events.addAll(promote(tile));
+                    }
                 }
-                setCurrentTile(target);
-                return new GameEvent(currentPosition != null ? currentPosition : coordinates, coordinates, this, GameEvent.EventType.MOVE);
             }
         }
-        return null;
+        return events;
     }
 
-    @Override
-    public GameEvent push(int x, int y, int vectorX, int vectorY) {
-        return null;
+    List<GameEvent> promote(Tile tile) {
+        List<GameEvent> events = new ArrayList<>();
+        synchronized (tile) {
+            events.add(this.selfDestruct());
+            GameObject ranger = ObjectType.RANGER.create(area);
+            ranger.orientation = this.orientation;
+            create(tile, ranger).ifPresent(events::add);
+        }
+        return events;
+    }
+
+    private Optional<GameEvent> create(Tile target, GameObject object) {
+        if (target.add(object)) {
+            object.setCurrentTile(target);
+            new Thread(object).start();
+            return Optional.of(new GameEvent(target.coordinates, object, GameEvent.EventType.PROMOTION));
+        }
+        return Optional.empty();
     }
 }

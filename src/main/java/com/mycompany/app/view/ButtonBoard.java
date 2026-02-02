@@ -66,17 +66,24 @@ public class ButtonBoard extends GameBoard {
                 updateQueueCounter();
             }
         }, 1, 1, TimeUnit.SECONDS);
-        grid.setPrefSize(100, 100);
+        grid.setPrefSize(width*40, height*40);
     }
 
     @Override
     protected void processEvent(GameEvent event) {
-        log.info("Processing event: " + event);
+        log.info("Processing event {}: {} [{};{}] -> [{};{}]", event.object().id, event.eventType(), event.origin().x, event.origin().y, event.target().x, event.target().y);
         GraphicButton origin = getButton(event.origin());
         GraphicButton target = getButton(event.target());
         if (event.eventType().change) {
-            target.setLabel(String.valueOf(event.object().id));
-            target.setFrames(graphicProvider.getFrames(event.object().type));
+            if(event.eventType() == GameEvent.EventType.DESTRUCTION) {
+                target.reset();
+                repaint(target);
+                return;
+            }
+            if(event.object().getType().isUnit()) {
+                target.setLabel(String.valueOf(event.object().id));
+            }
+            target.setFrames(graphicProvider.getFrames(event.object().getType()));
             if (origin != target) {
                 origin.reset();
                 repaint(origin);

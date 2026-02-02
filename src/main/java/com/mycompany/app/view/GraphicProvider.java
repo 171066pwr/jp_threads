@@ -38,7 +38,7 @@ public class GraphicProvider {
             try {
                 List<Background> images = new ArrayList<>();
                 for (int i = 0; i < 8; i++) {
-                    String path = String.format("%s%s_%d.bmp", RESOURCE_PATH, type.toString(), i);
+                    String path = String.format("%s\\%s\\%d.bmp", RESOURCE_PATH, type.toString(), i);
                     BackgroundFill backgroundFill = new BackgroundFill(new ImagePattern(new Image(new FileInputStream(path))), CornerRadii.EMPTY, Insets.EMPTY);
                     images.add(new Background(backgroundFill));
                     graphics.put(type, images);

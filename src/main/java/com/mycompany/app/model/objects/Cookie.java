@@ -3,32 +3,18 @@ package com.mycompany.app.model.objects;
 import com.mycompany.app.model.map.Area;
 import com.mycompany.app.model.map.GameEvent;
 import com.mycompany.app.model.map.ObjectType;
-import com.mycompany.app.model.map.Perk;
 
-import java.util.Optional;
+import java.util.Collections;
+import java.util.List;
 
-public class Cookie extends GameObject implements Perk {
+public class Cookie extends GameObject {
     public Cookie(Area area) {
         super(area, ObjectType.COOKIE);
+        speed = 1;
     }
 
     @Override
-    protected Optional<GameEvent> act() {
-        return Optional.empty();
-    }
-
-    @Override
-    protected GameEvent remove() {
-        return new GameEvent(coordinates, this, GameEvent.EventType.DESTRUCTION);
-    }
-
-    @Override
-    protected GameEvent create(int x, int y, GameObject object) {
-        return null;
-    }
-
-    @Override
-    protected GameEvent push(int x, int y, int vectorX, int vectorY) {
-        return null;
+    protected List<GameEvent> act() {
+        return Collections.EMPTY_LIST;
     }
 }

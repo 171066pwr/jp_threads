@@ -20,6 +20,7 @@ public class Creator implements PausableRunnable {
     private Area area;
     private int retryLimit = 100;
     private int maxUnits;
+    private int maxPerks;
     private long period;
     private Map<ObjectType, Integer> spawnChances;
     private Random rand = new Random();
@@ -28,6 +29,7 @@ public class Creator implements PausableRunnable {
         this.area = area;
         this.retryLimit = options.retryLimit;
         this.maxUnits = options.maxUnits;
+        this.maxPerks = options.maxPerks;
         this.period = options.period;
         this.spawnChances = options.spawnChances;
         rand.setSeed(System.currentTimeMillis());
@@ -55,11 +57,23 @@ public class Creator implements PausableRunnable {
         if(area.getUnitCount() < maxUnits) {
             createUnit();
         }
+        if(area.getPerkCount() < maxPerks) {
+            createPerk();
+        }
+    }
+
+    private void createPerk() {
+        log.info("Creating perk...");
+        createObject(ObjectType.COOKIE);
     }
 
     private void createUnit() {
         log.info("Creating unit...");
         ObjectType type = calculateSpawnWinner();
+        createObject(type);
+    }
+
+    private void createObject(ObjectType type) {
         int iteration = 0;
         Optional<Tile> location;
         while((location = getRandomLocation()).isPresent() && iteration < retryLimit) {
@@ -80,8 +94,7 @@ public class Creator implements PausableRunnable {
     }
 
     private ObjectType calculateSpawnWinner() {
-        Random rand = new Random();
-        ObjectType winner = ObjectType.values()[0];
+        ObjectType winner = ObjectType.SCOUT;
         int spawnChance = 0;
 
         for(ObjectType type : spawnChances.keySet()) {
@@ -95,6 +108,14 @@ public class Creator implements PausableRunnable {
         return winner;
     }
 
+    static void logCreationFailed(String message, Point point) {
+        log.info("{} Creation failed: {}", point, message);
+    }
+
+    static void logCreationSucceeded(String message, Point point) {
+        log.info("{} Object created: {}", point, message);
+    }
+
     @Builder
     public static class CreatorOptions {
         @Builder.Default
@@ -102,21 +123,16 @@ public class Creator implements PausableRunnable {
         @Builder.Default
         public int maxUnits = 50;
         @Builder.Default
-        public long period = 1;
+        public int maxPerks = 50;
+        @Builder.Default
+        public long period = 100;
         @Builder.Default
         public Map<ObjectType, Integer> spawnChances = getDefaultSpawnChances();
 
         public static Map<ObjectType, Integer> getDefaultSpawnChances() {
             return Arrays.stream(ObjectType.values())
-                    .collect(Collectors.toMap(e -> e, e -> 1));
+                    .filter(ObjectType::isUnit)
+                    .collect(Collectors.toMap(e -> e, e -> (e == ObjectType.SCOUT ? 50 : 10)));
         }
-    }
-
-    static void logCreationFailed(String message, Point point) {
-        log.info("{} Creation failed: {}", point, message);
-    }
-
-    static void logCreationSucceeded(String message, Point point) {
-        log.info("{} Object created: {}", point, message);
     }
 }

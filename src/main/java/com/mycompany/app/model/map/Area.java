@@ -74,7 +74,15 @@ public class Area {
 
     public synchronized long getUnitCount() {
         return objects.stream()
-                .filter(o -> o instanceof Unit)
+                .map(GameObject::getType)
+                .filter(ObjectType::isUnit)
+                .count();
+    }
+
+    public synchronized long getPerkCount() {
+        return objects.stream()
+                .map(GameObject::getType)
+                .filter(ObjectType::isPerk)
                 .count();
     }
 
@@ -87,7 +95,6 @@ public class Area {
     }
 
     public void notifyListeners(GameEvent event) {
-        log.info(String.format("Event: #%d %s", event.object().id, event.eventType().toString()));
         for (GameEventListener listener : listeners) {
             listener.acceptEvent(event);
         }

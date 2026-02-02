@@ -5,23 +5,28 @@ import com.mycompany.app.model.map.*;
 import lombok.Getter;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class GameObject implements PausableRunnable {
     private static final AtomicLong counter = new AtomicLong(0);
     private static final AtomicInteger tick = new AtomicInteger(500);
+    private final AtomicBoolean isAlive = new AtomicBoolean(true);
     public final long id;
-    public final ObjectType type;
+    @Getter
+    protected final ObjectType type;
     @Getter
     protected Tile currentTile;
     @Getter
     protected Point coordinates = null;
     protected Orientation orientation;
     protected int speed = 10;
-    private final Area area;
+    protected int experience = 0;
+    protected final Area area;
 
     public static void setUpdateTick(int miliseconds) {
         tick.set(miliseconds);
@@ -37,13 +42,12 @@ public abstract class GameObject implements PausableRunnable {
     @Override
     public void run() {
         registerObject();
-        while (!Thread.currentThread().isInterrupted()) {
+        while (isAlive.getAcquire() && !Thread.currentThread().isInterrupted()) {
             checkPaused();
-            Optional<GameEvent> event = act();
-            event.ifPresent(area::notifyListeners);
+            List<GameEvent> events = act();
+            events.forEach(area::notifyListeners);
             waitTick(tick.get()/speed);
         }
-        unregisterObject();
     }
 
     public int getState() {
@@ -54,31 +58,65 @@ public abstract class GameObject implements PausableRunnable {
         return area.probe(coordinates, direction, depth);
     }
 
-    protected abstract Optional<GameEvent> act();
+    protected abstract List<GameEvent> act();
 
-    protected abstract GameEvent remove();
-
-    protected abstract GameEvent create(int x, int y, GameObject object);
-
-    protected GameEvent move(Tile target) {
-        synchronized (target) {
-            if (target.add(this)) {
-                Point origin = coordinates;
-                if (getCurrentTile() != null) {
-                    getCurrentTile().remove(this);
-                }
-                setCurrentTile(target);
-                return new GameEvent(origin, target.coordinates, this, GameEvent.EventType.MOVE);
-            }
-        }
-        return null;
+    protected GameEvent selfDestruct() {
+        currentTile.remove(this);
+        this.kill();
+        return new GameEvent(coordinates, this, GameEvent.EventType.DESTRUCTION);
     }
 
-    protected abstract GameEvent push(int x, int y, int vectorX, int vectorY);
+    protected Optional<GameEvent> destroy(Tile target) {
+        GameObject object = target.getObject();
+        if(target.remove(object)) {
+            object.kill();
+            levelUp();
+            return Optional.of(new GameEvent(target.coordinates, target.coordinates, object, GameEvent.EventType.DESTRUCTION));
+        }
+        return Optional.empty();
+    }
+
+    protected List<GameEvent> move(Tile target) {
+        List<GameEvent> events = new ArrayList<>();
+        if(ObjectType.COOKIE == target.getObjectType()) {
+            destroy(target).ifPresent(events::add);
+        }
+        if (target.add(this)) {
+            Point currentPosition = coordinates;
+            if (getCurrentTile() != null) {
+                getCurrentTile().remove(this);
+            }
+            setCurrentTile(target);
+            events.add(new GameEvent(currentPosition != null ? currentPosition : coordinates, coordinates, this, GameEvent.EventType.MOVE));
+        }
+        return events;
+    }
 
     protected synchronized GameEvent rotate(int turns) {
         orientation = orientation.turnRight(turns);
         return new GameEvent(coordinates,this, GameEvent.EventType.ROTATION);
+    }
+
+    protected boolean spotTarget(Point direction, int depth, List<ObjectType> types) {
+        return probe(direction, depth).stream()
+                .limit(1)
+                .anyMatch(t -> types.contains(t.getObjectType()));
+    }
+
+    protected boolean spotTarget(Point direction, int depth, ObjectType type) {
+        return probe(direction, depth).stream()
+                .limit(1)
+                .anyMatch(t -> type.equals(t.getObjectType()));
+    }
+
+    protected void levelUp() {
+        experience++;
+    }
+
+    protected void kill() {
+        if(isAlive.compareAndSet(true, false)) {
+            unregisterObject();
+        }
     }
 
     void setCurrentTile(Tile tile) {
