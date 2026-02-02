@@ -1,18 +1,14 @@
 package com.mycompany.app.view;
 
 import com.mycompany.app.model.concurrency.PausableRunnable;
-import com.mycompany.app.model.creator.Creator;
 import com.mycompany.app.model.map.Area;
 import com.mycompany.app.model.map.GameEvent;
 import com.mycompany.app.model.map.GameEventListener;
-import lombok.RequiredArgsConstructor;
+import com.mycompany.app.model.objects.Creator;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Log4j2
 public abstract class GameBoard implements GameEventListener, PausableRunnable {

@@ -10,28 +10,31 @@ import java.util.List;
 public class GraphicButton extends Button {
     int state;
     @Setter
+    String label = "";
+    @Setter
     List<Background> frames;
 
     public GraphicButton(String text, int state, List<Background> frames) {
         super(text);
         this.state = state;
         this.frames = frames;
-        if (state == 1) {}
+        initButton();
     }
 
     public void reset() {
         state = 0;
+        label = "";
         frames = null;
     }
 
-    public void incrementState() {
-        if(frames != null) {
-            state = (state + 1)%frames.size();
+    public void setState(int state) {
+        if(frames != null && !frames.isEmpty()) {
+            this.state = (state) % frames.size();
         }
     }
 
     public void repaint() {
-        setText(state+"");
+        setText(label);
         if(frames != null) {
             this.setBackground(frames.get(state));
         } else {

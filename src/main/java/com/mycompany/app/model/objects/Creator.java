@@ -1,16 +1,17 @@
-package com.mycompany.app.model.creator;
+package com.mycompany.app.model.objects;
 
 import com.mycompany.app.model.concurrency.PausableRunnable;
 import com.mycompany.app.model.map.Area;
+import com.mycompany.app.model.map.GameEvent;
 import com.mycompany.app.model.map.ObjectType;
+import com.mycompany.app.model.map.Tile;
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import java.awt.*;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,7 @@ public class Creator implements PausableRunnable {
     private int maxUnits;
     private long period;
     private Map<ObjectType, Integer> spawnChances;
+    private Random rand = new Random();
 
     public Creator(Area area, CreatorOptions options) {
         this.area = area;
@@ -28,6 +30,7 @@ public class Creator implements PausableRunnable {
         this.maxUnits = options.maxUnits;
         this.period = options.period;
         this.spawnChances = options.spawnChances;
+        rand.setSeed(System.currentTimeMillis());
     }
 
     @Override
@@ -43,32 +46,37 @@ public class Creator implements PausableRunnable {
         }
     }
 
-    Point getRandomLocation() {
-        Random rand = new Random();
-        int iteration = 0;
-        while(iteration < retryLimit) {
+    Optional<Tile> getRandomLocation() {
             Point point = new Point(rand.nextInt(area.width), rand.nextInt(area.height));
-            if(!area.probe(point).isOccupied()){
-                return point;
-            }
-        }
-        return null;
+            return area.probe(point);
     }
 
-    synchronized private void spawn() throws CreationFailedException {
+    private void spawn() {
         if(area.getUnitCount() < maxUnits) {
             createUnit();
         }
     }
 
-    private void createUnit() throws CreationFailedException {
+    private void createUnit() {
         log.info("Creating unit...");
-        Point point = getRandomLocation();
         ObjectType type = calculateSpawnWinner();
-        if(!area.create(point, type)) {
-            throw new CreationFailedException(String.format("Point [%d, %d] already occupied", point.x, point.y));
+        int iteration = 0;
+        Optional<Tile> location;
+        while((location = getRandomLocation()).isPresent() && iteration < retryLimit) {
+            Tile tile = location.get();
+            synchronized (tile) {
+                GameObject object = type.create(area);
+                if (tile.add(object)) {
+                    object.setCurrentTile(tile);
+                    area.notifyListeners(new GameEvent(tile.coordinates, object, GameEvent.EventType.CREATION));
+                    new Thread(object).start();
+                    logCreationSucceeded(type.name(), tile.coordinates);
+                    break;
+                } else {
+                    logCreationFailed("already occupied", tile.coordinates);
+                }
+            }
         }
-        log.info("Unit created");
     }
 
     private ObjectType calculateSpawnWinner() {
@@ -76,7 +84,6 @@ public class Creator implements PausableRunnable {
         ObjectType winner = ObjectType.values()[0];
         int spawnChance = 0;
 
-        Map<ObjectType, Integer> calculated = new HashMap<>();
         for(ObjectType type : spawnChances.keySet()) {
             Integer roll = rand.nextInt(1000);
             int rolled = spawnChances.get(type) * roll;
@@ -88,22 +95,12 @@ public class Creator implements PausableRunnable {
         return winner;
     }
 
-    private void setSpawnChance(ObjectType type, int chance) {
-        spawnChances.put(type, chance);
-    }
-
-    private int getTotalSpawnChances() {
-        return spawnChances.entrySet().stream()
-                .map(e -> e.getValue())
-                .reduce(0, Integer::sum);
-    }
-
     @Builder
     public static class CreatorOptions {
         @Builder.Default
         public int retryLimit = 100;
         @Builder.Default
-        public int maxUnits = 500;
+        public int maxUnits = 50;
         @Builder.Default
         public long period = 1;
         @Builder.Default
@@ -115,10 +112,11 @@ public class Creator implements PausableRunnable {
         }
     }
 
-    static class CreationFailedException extends Exception {
-        String message;
-        CreationFailedException(String message) {
-            message = "Creation failed: " + message;
-        }
+    static void logCreationFailed(String message, Point point) {
+        log.info("{} Creation failed: {}", point, message);
+    }
+
+    static void logCreationSucceeded(String message, Point point) {
+        log.info("{} Object created: {}", point, message);
     }
 }

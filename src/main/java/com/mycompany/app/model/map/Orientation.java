@@ -31,6 +31,6 @@ public enum Orientation {
     }
 
     public Point addDirection(Point direction) {
-        return new Point(direction.x = this.direction.x, direction.y + this.direction.y);
+        return new Point(direction.x + this.direction.x, direction.y + this.direction.y);
     }
 }
