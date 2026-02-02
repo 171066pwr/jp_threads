@@ -26,10 +26,10 @@ public class Bullet extends GameObject {
                 Tile tile = probed.getFirst();
                 synchronized (tile) {
                     if (tile.isOccupied()) {
-                        destroy(tile).ifPresent(t -> {
-                            events.add(t);
-                            events.add(this.selfDestruct());
-                        });
+                        if(tile.getObjectType() != ObjectType.TANK) {
+                            destroy(tile).ifPresent(events::add);
+                        }
+                        events.add(this.selfDestruct());
                     } else {
                         events.addAll(move(tile));
                     }

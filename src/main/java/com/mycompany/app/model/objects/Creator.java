@@ -118,6 +118,7 @@ public class Creator implements PausableRunnable {
 
     @Builder
     public static class CreatorOptions {
+        public static int scoutBias = 4;
         @Builder.Default
         public int retryLimit = 100;
         @Builder.Default
@@ -125,14 +126,14 @@ public class Creator implements PausableRunnable {
         @Builder.Default
         public int maxPerks = 50;
         @Builder.Default
-        public long period = 100;
+        public long period = 50;
         @Builder.Default
         public Map<ObjectType, Integer> spawnChances = getDefaultSpawnChances();
 
         public static Map<ObjectType, Integer> getDefaultSpawnChances() {
             return Arrays.stream(ObjectType.values())
                     .filter(ObjectType::isUnit)
-                    .collect(Collectors.toMap(e -> e, e -> (e == ObjectType.SCOUT ? 50 : 10)));
+                    .collect(Collectors.toMap(e -> e, e -> (e == ObjectType.SCOUT ? scoutBias : 1)));
         }
     }
 }

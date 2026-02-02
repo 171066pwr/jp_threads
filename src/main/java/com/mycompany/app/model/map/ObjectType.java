@@ -12,7 +12,8 @@ public enum ObjectType {
     BULLET(Bullet::new, PROJECTILE),
     COOKIE(Cookie::new, PERK),
     RANGER(Ranger::new, UNIT),
-    SCOUT(Scout::new, UNIT);
+    SCOUT(Scout::new, UNIT),
+    TANK(Tank::new, UNIT);
 
     private final Function<Area, GameObject> create;
     public final Subtype subtype;

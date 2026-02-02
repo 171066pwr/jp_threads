@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class GameObject implements PausableRunnable {
+    public static final int retryLimit = 20;
     private static final AtomicLong counter = new AtomicLong(0);
     private static final AtomicInteger tick = new AtomicInteger(500);
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
@@ -39,6 +40,8 @@ public abstract class GameObject implements PausableRunnable {
         orientation = Orientation.NORTH;
     }
 
+    protected abstract List<GameEvent> act();
+
     @Override
     public void run() {
         registerObject();
@@ -53,12 +56,9 @@ public abstract class GameObject implements PausableRunnable {
     public int getState() {
         return orientation.ordinal();
     }
-
     protected List<Tile> probe(Point direction, int depth) {
         return area.probe(coordinates, direction, depth);
     }
-
-    protected abstract List<GameEvent> act();
 
     protected GameEvent selfDestruct() {
         currentTile.remove(this);

@@ -10,11 +10,12 @@ import java.util.*;
 import java.util.List;
 
 public class Ranger extends GameObject {
-    Random rand = new Random();
-List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
+    private final Random rand = new Random();
+    private final List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
 
     public Ranger(Area area) {
         super(area, ObjectType.RANGER);
+        speed = 8;
         rand.setSeed(System.currentTimeMillis());
     }
 
@@ -22,7 +23,7 @@ List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
     protected List<GameEvent> act() {
         List<GameEvent> events = new ArrayList<>();
         int roll;
-        int limit = 20;
+        int limit = retryLimit;
         while (limit > 0 && events.isEmpty()) {
             roll = rand.nextInt(100);
             limit--;
@@ -52,7 +53,7 @@ List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
 
     private List<GameEvent> shoot(Tile target) {
         List<GameEvent> events = new ArrayList<>();
-        if(target.getObjectType() != null) {
+        if(target.getObjectType() != null && target.getObjectType() != ObjectType.TANK) {
             destroy(target).ifPresent(events::add);
         } else {
             GameObject bullet = ObjectType.BULLET.create(area);

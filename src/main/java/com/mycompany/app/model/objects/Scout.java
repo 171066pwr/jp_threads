@@ -20,7 +20,7 @@ public class Scout extends GameObject {
     protected List<GameEvent> act() {
         List<GameEvent> events = new ArrayList<>();
         int roll;
-        int limit = 20;
+        int limit = retryLimit;
         while (limit > 0 && events.isEmpty()) {
             roll = rand.nextInt(100);
             limit--;
@@ -49,12 +49,10 @@ public class Scout extends GameObject {
 
     List<GameEvent> promote(Tile tile) {
         List<GameEvent> events = new ArrayList<>();
-        synchronized (tile) {
-            events.add(this.selfDestruct());
-            GameObject ranger = ObjectType.RANGER.create(area);
-            ranger.orientation = this.orientation;
-            create(tile, ranger).ifPresent(events::add);
-        }
+        events.add(this.selfDestruct());
+        GameObject ranger = ObjectType.RANGER.create(area);
+        ranger.orientation = this.orientation;
+        create(tile, ranger).ifPresent(events::add);
         return events;
     }
 
