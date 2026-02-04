@@ -15,6 +15,7 @@ public class Tank extends GameObject {
     public Tank(Area area) {
         super(area, ObjectType.TANK);
         speed = 6;
+        sight = 5;
     }
 
     @Override
@@ -26,7 +27,7 @@ public class Tank extends GameObject {
             roll = rand.nextInt(100);
             limit--;
             List<Tile> probed = probe(orientation.getDirection(), 1);
-            if (spotTarget(orientation.getDirection(), 5, targets)) {
+            if (spotTarget(orientation.getDirection(), targets)) {
                 roll = 99;
             }
             if (probed.isEmpty() || roll < 40) {
@@ -41,7 +42,7 @@ public class Tank extends GameObject {
         return events;
     }
 
-    List<GameEvent> push(Tile tile) {
+    synchronized List<GameEvent> push(Tile tile) {
         List<GameEvent> events = new ArrayList<>();
         if(tile.isOccupied()) {
             switch (tile.getObjectType()) {

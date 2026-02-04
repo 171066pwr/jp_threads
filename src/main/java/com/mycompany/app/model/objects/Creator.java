@@ -1,6 +1,7 @@
 package com.mycompany.app.model.objects;
 
 import com.mycompany.app.model.concurrency.PausableRunnable;
+import com.mycompany.app.model.concurrency.RegulatedRunnable;
 import com.mycompany.app.model.map.Area;
 import com.mycompany.app.model.map.GameEvent;
 import com.mycompany.app.model.map.ObjectType;
@@ -41,11 +42,15 @@ public class Creator implements PausableRunnable {
             checkPaused();
             try{
                 spawn();
-                Thread.sleep(period * 10);
+                Thread.sleep(period);
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
         }
+    }
+
+    public void setPeriod(int period) {
+        this.period = period < 0 ? (-period) : period;
     }
 
     Optional<Tile> getRandomLocation() {
@@ -126,7 +131,7 @@ public class Creator implements PausableRunnable {
         @Builder.Default
         public int maxPerks = 50;
         @Builder.Default
-        public long period = 50;
+        public long period = 1000;
         @Builder.Default
         public Map<ObjectType, Integer> spawnChances = getDefaultSpawnChances();
 

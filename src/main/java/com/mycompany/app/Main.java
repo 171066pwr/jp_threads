@@ -16,7 +16,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         GraphicProvider graphicProvider = GraphicProvider.getInstance();
         Creator.CreatorOptions creatorOptions = Creator.CreatorOptions.builder()
-                .maxUnits(100)
+                .maxUnits(144)
                 .build();
         ButtonBoard board = new ButtonBoard(24, 24, graphicProvider, creatorOptions);
 

@@ -13,6 +13,7 @@ public class Ranger extends GameObject {
     public Ranger(Area area) {
         super(area, ObjectType.RANGER);
         speed = 8;
+        sight = 10;
     }
 
     @Override
@@ -24,7 +25,7 @@ public class Ranger extends GameObject {
             roll = rand.nextInt(100);
             limit--;
             List<Tile> probed = probe(orientation.getDirection(), 1);
-            if(spotTarget(orientation.getDirection(), 10, targets)) {
+            if(spotTarget(orientation.getDirection(), targets)) {
                 roll = 99;
             }
             if(probed.isEmpty() || roll < 40) {

@@ -15,6 +15,7 @@ public class Scout extends GameObject {
     public Scout(Area area) {
         super(area, ObjectType.SCOUT);
         rand.setSeed(System.currentTimeMillis());
+        sight = 3;
     }
 
     @Override
@@ -28,7 +29,7 @@ public class Scout extends GameObject {
             List<Tile> probed = probe(orientation.getDirection(), 1);
             if(probed.isEmpty()) {
                 roll = 0;
-            } else if(spotTarget(orientation.getDirection(), 3, ObjectType.COOKIE)) {
+            } else if(spotTarget(orientation.getDirection(), ObjectType.COOKIE)) {
                 roll = 50;
             }
             if (roll < 50) {

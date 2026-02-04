@@ -1,9 +1,9 @@
 package com.mycompany.app.view;
 
 import com.mycompany.app.model.concurrency.PausableRunnable;
+import com.mycompany.app.model.concurrency.RegulatedRunnable;
 import com.mycompany.app.model.map.GameEvent;
 import com.mycompany.app.model.objects.Creator;
-import com.mycompany.app.model.objects.GameObject;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,6 +25,7 @@ public class ButtonBoard extends GameBoard {
     private final GraphicProvider graphicProvider;
     private final Label queueLabel;
     private final Label speedLabel;
+    private final Label periodLabel;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public ButtonBoard(int width, int height, GraphicProvider graphicProvider, Creator.CreatorOptions creatorOptions) {
@@ -33,6 +34,7 @@ public class ButtonBoard extends GameBoard {
         buttons = new GraphicButton[width][height];
         speedLabel = new Label();
         queueLabel = new Label();
+        periodLabel = new Label();
         initComponents(width, height);
     }
 
@@ -42,6 +44,7 @@ public class ButtonBoard extends GameBoard {
         buttons = new GraphicButton[width][height];
         speedLabel = new Label();
         queueLabel = new Label();
+        periodLabel = new Label();
         initComponents(width, height);
     }
 
@@ -53,10 +56,12 @@ public class ButtonBoard extends GameBoard {
             }
         }
         GridPane menu = new GridPane();
-        menu.add(createPauseButton(), 0, height, 3, 1);
-        menu.add(createSpeedSlider(), 3, height, 10, 1);
-        menu.add(speedLabel, 13, height, 5, 1);
-        menu.add(queueLabel, 18, height, 5, 1);
+        menu.add(createPauseButton(), 0, height, 5, 2);
+        menu.add(createSpeedSlider(), 5, height, 10, 1);
+        menu.add(createPeriodSlider(), 15, height, 10, 1);
+        menu.add(speedLabel, 5, height+1, 5, 1);
+        menu.add(periodLabel, 15, height+1, 5, 1);
+        menu.add(queueLabel, 25, height+1, 5, 1);
         menu.setHgap(10);
         grid.add(menu, 0, height, width, 1);
 
@@ -137,11 +142,22 @@ public class ButtonBoard extends GameBoard {
     }
 
     private Slider createSpeedSlider() {
-        Slider slider = new Slider(100, 10000, 500);
+        Slider slider = new Slider(100, 10000, 1000);
         slider.setMajorTickUnit(10);
         slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            GameObject.setUpdateTick(newValue.intValue());
+            RegulatedRunnable.setUpdateTick(newValue.intValue());
             setSpeedLabelText(newValue.intValue());
+        });
+        slider.setValue(2000);
+        return slider;
+    }
+
+    private Slider createPeriodSlider() {
+        Slider slider = new Slider(50, 10000, 500);
+        slider.setMajorTickUnit(50);
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            creator.setPeriod(newValue.intValue());
+            setPeriodLabelText(newValue.intValue());
         });
         slider.setValue(1000);
         return slider;
@@ -149,6 +165,10 @@ public class ButtonBoard extends GameBoard {
 
     private void setSpeedLabelText(int speed) {
         speedLabel.setText(String.format("Base tick: %dms", speed));
+    }
+
+    private void setPeriodLabelText(int period) {
+        periodLabel.setText(String.format("Creator tick: %dms", period));
     }
 
     @RequiredArgsConstructor

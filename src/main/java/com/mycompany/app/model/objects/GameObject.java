@@ -1,6 +1,7 @@
 package com.mycompany.app.model.objects;
 
 import com.mycompany.app.model.concurrency.PausableRunnable;
+import com.mycompany.app.model.concurrency.RegulatedRunnable;
 import com.mycompany.app.model.map.*;
 import lombok.Getter;
 
@@ -13,12 +14,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class GameObject implements PausableRunnable {
+public abstract class GameObject implements PausableRunnable, RegulatedRunnable {
     public static final int retryLimit = 20;
     private static final AtomicLong counter = new AtomicLong(0);
-    private static final AtomicInteger tick = new AtomicInteger(500);
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
     public final long id;
+    protected final Area area;
+    protected final Random rand = new Random();
+
     @Getter
     protected final ObjectType type;
     @Getter
@@ -26,14 +29,9 @@ public abstract class GameObject implements PausableRunnable {
     @Getter
     protected Point coordinates = null;
     protected Orientation orientation;
-    protected int speed = 10;
     protected int experience = 0;
-    protected final Area area;
-    protected final Random rand = new Random();
-
-    public static void setUpdateTick(int miliseconds) {
-        tick.set(miliseconds);
-    }
+    protected int sight = 0;
+    protected int speed = 10;
 
     public GameObject(Area area, ObjectType type) {
         this.area = area;
@@ -106,14 +104,14 @@ public abstract class GameObject implements PausableRunnable {
         return (roll < 50 ? rotate(-rotation) : rotate(rotation));
     }
 
-    protected boolean spotTarget(Point direction, int depth, List<ObjectType> types) {
-        return probe(direction, depth).stream()
+    protected boolean spotTarget(Point direction, List<ObjectType> types) {
+        return probe(direction, sight).stream()
                 .limit(1)
                 .anyMatch(t -> types.contains(t.getObjectType()));
     }
 
-    protected boolean spotTarget(Point direction, int depth, ObjectType type) {
-        return probe(direction, depth).stream()
+    protected boolean spotTarget(Point direction, ObjectType type) {
+        return probe(direction, sight).stream()
                 .limit(1)
                 .anyMatch(t -> type.equals(t.getObjectType()));
     }
