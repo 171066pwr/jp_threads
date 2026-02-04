@@ -1,11 +1,14 @@
-package com.mycompany.app.model.objects;
+package com.mycompany.app.threads.model.objects;
 
-import com.mycompany.app.model.map.Area;
-import com.mycompany.app.model.map.GameEvent;
-import com.mycompany.app.model.map.ObjectType;
-import com.mycompany.app.model.map.Tile;
+import com.mycompany.app.threads.model.map.Area;
+import com.mycompany.app.threads.model.map.GameEvent;
+import com.mycompany.app.threads.model.map.ObjectType;
+import com.mycompany.app.threads.model.map.Tile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class Ranger extends GameObject {
     private final List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);

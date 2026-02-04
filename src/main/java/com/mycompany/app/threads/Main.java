@@ -1,8 +1,8 @@
-package com.mycompany.app;
+package com.mycompany.app.threads;
 
-import com.mycompany.app.model.objects.Creator;
-import com.mycompany.app.view.ButtonBoard;
-import com.mycompany.app.view.GraphicProvider;
+import com.mycompany.app.threads.model.objects.Creator;
+import com.mycompany.app.threads.view.ButtonBoard;
+import com.mycompany.app.threads.view.GraphicProvider;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;

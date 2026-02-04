@@ -1,4 +1,4 @@
-package com.mycompany.app.view;
+package com.mycompany.app.threads.view;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;

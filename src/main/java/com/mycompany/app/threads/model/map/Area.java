@@ -1,6 +1,6 @@
-package com.mycompany.app.model.map;
+package com.mycompany.app.threads.model.map;
 
-import com.mycompany.app.model.objects.GameObject;
+import com.mycompany.app.threads.model.objects.GameObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

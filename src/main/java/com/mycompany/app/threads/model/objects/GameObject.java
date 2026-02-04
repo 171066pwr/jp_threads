@@ -1,8 +1,8 @@
-package com.mycompany.app.model.objects;
+package com.mycompany.app.threads.model.objects;
 
-import com.mycompany.app.model.concurrency.PausableRunnable;
-import com.mycompany.app.model.concurrency.RegulatedRunnable;
-import com.mycompany.app.model.map.*;
+import com.mycompany.app.threads.model.concurrency.PausableRunnable;
+import com.mycompany.app.threads.model.concurrency.RegulatedRunnable;
+import com.mycompany.app.threads.model.map.*;
 import lombok.Getter;
 
 import java.awt.*;
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class GameObject implements PausableRunnable, RegulatedRunnable {

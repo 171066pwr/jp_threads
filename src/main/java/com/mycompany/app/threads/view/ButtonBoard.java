@@ -1,9 +1,9 @@
-package com.mycompany.app.view;
+package com.mycompany.app.threads.view;
 
-import com.mycompany.app.model.concurrency.PausableRunnable;
-import com.mycompany.app.model.concurrency.RegulatedRunnable;
-import com.mycompany.app.model.map.GameEvent;
-import com.mycompany.app.model.objects.Creator;
+import com.mycompany.app.threads.model.concurrency.PausableRunnable;
+import com.mycompany.app.threads.model.concurrency.RegulatedRunnable;
+import com.mycompany.app.threads.model.map.GameEvent;
+import com.mycompany.app.threads.model.objects.Creator;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

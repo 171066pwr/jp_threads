@@ -1,4 +1,4 @@
-package com.mycompany.app.model.map;
+package com.mycompany.app.threads.model.map;
 
 public interface GameEventListener {
     default void register(Area area) {

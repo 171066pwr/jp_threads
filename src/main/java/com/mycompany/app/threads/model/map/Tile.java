@@ -1,6 +1,6 @@
-package com.mycompany.app.model.map;
+package com.mycompany.app.threads.model.map;
 
-import com.mycompany.app.model.objects.GameObject;
+import com.mycompany.app.threads.model.objects.GameObject;
 import lombok.Getter;
 
 import java.awt.*;

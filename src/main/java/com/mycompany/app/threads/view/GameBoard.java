@@ -1,10 +1,10 @@
-package com.mycompany.app.view;
+package com.mycompany.app.threads.view;
 
-import com.mycompany.app.model.concurrency.PausableRunnable;
-import com.mycompany.app.model.map.Area;
-import com.mycompany.app.model.map.GameEvent;
-import com.mycompany.app.model.map.GameEventListener;
-import com.mycompany.app.model.objects.Creator;
+import com.mycompany.app.threads.model.concurrency.PausableRunnable;
+import com.mycompany.app.threads.model.map.Area;
+import com.mycompany.app.threads.model.map.GameEvent;
+import com.mycompany.app.threads.model.map.GameEventListener;
+import com.mycompany.app.threads.model.objects.Creator;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.concurrent.BlockingQueue;

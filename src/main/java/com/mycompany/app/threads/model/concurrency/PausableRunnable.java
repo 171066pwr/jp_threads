@@ -1,4 +1,4 @@
-package com.mycompany.app.model.concurrency;
+package com.mycompany.app.threads.model.concurrency;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

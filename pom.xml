@@ -7,6 +7,7 @@
     <groupId>com.mycompany.app</groupId>
     <artifactId>threads</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>threads</name>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -15,6 +16,16 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>21</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -61,7 +72,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.5.6</version>
                 <configuration>
-                    <mainClass>com.mycompany.app.Main</mainClass>
+                    <mainClass>com.mycompany.app.threads.Main</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -69,6 +80,26 @@
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <executions>
+                    <execution>
+                        <!-- Default configuration for running with: mvn clean javafx:run -->
+                        <id>default-cli</id>
+                        <configuration>
+                            <mainClass>com.mycompany.app.sockets/com.mycompany.app.sockets.HelloApplication</mainClass>
+                            <launcher>app</launcher>
+                            <jlinkZipName>app</jlinkZipName>
+                            <jlinkImageName>app</jlinkImageName>
+                            <noManPages>true</noManPages>
+                            <stripDebug>true</stripDebug>
+                            <noHeaderFiles>true</noHeaderFiles>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

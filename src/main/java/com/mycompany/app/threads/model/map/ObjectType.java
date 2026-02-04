@@ -1,11 +1,11 @@
-package com.mycompany.app.model.map;
+package com.mycompany.app.threads.model.map;
 
-import com.mycompany.app.model.objects.*;
+import com.mycompany.app.threads.model.objects.*;
 import lombok.AllArgsConstructor;
 
 import java.util.function.Function;
 
-import static com.mycompany.app.model.map.ObjectType.Subtype.*;
+import static com.mycompany.app.threads.model.map.ObjectType.Subtype.*;
 
 @AllArgsConstructor
 public enum ObjectType {

@@ -1,11 +1,10 @@
-package com.mycompany.app.model.objects;
+package com.mycompany.app.threads.model.objects;
 
-import com.mycompany.app.model.concurrency.PausableRunnable;
-import com.mycompany.app.model.concurrency.RegulatedRunnable;
-import com.mycompany.app.model.map.Area;
-import com.mycompany.app.model.map.GameEvent;
-import com.mycompany.app.model.map.ObjectType;
-import com.mycompany.app.model.map.Tile;
+import com.mycompany.app.threads.model.concurrency.PausableRunnable;
+import com.mycompany.app.threads.model.map.Area;
+import com.mycompany.app.threads.model.map.GameEvent;
+import com.mycompany.app.threads.model.map.ObjectType;
+import com.mycompany.app.threads.model.map.Tile;
 import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
 

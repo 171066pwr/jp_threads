@@ -1,8 +1,8 @@
-package com.mycompany.app.model.objects;
+package com.mycompany.app.threads.model.objects;
 
-import com.mycompany.app.model.map.Area;
-import com.mycompany.app.model.map.GameEvent;
-import com.mycompany.app.model.map.ObjectType;
+import com.mycompany.app.threads.model.map.Area;
+import com.mycompany.app.threads.model.map.GameEvent;
+import com.mycompany.app.threads.model.map.ObjectType;
 
 import java.util.Collections;
 import java.util.List;
