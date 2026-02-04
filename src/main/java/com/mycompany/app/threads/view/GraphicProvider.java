@@ -19,6 +19,7 @@ import java.util.Map;
 @Log4j2
 public class GraphicProvider {
     private static final String RESOURCE_PATH = "frames";
+    private static final String ALTERNATE_PATH = "src/main/resources/frames";
     private static GraphicProvider instance;
     private Map<ObjectType, List<Background>> graphics;
 
@@ -36,18 +37,17 @@ public class GraphicProvider {
 
     private void loadGraphics() {
         for(ObjectType type : ObjectType.values()) {
+            List<Background> images = new ArrayList<>();
             try {
-                List<Background> images = new ArrayList<>();
                 for (int i = 0; i < 8; i++) {
-                    String path = String.format("%s/%s/%d.bmp", RESOURCE_PATH, type.toString(), i).toLowerCase();
-                    ClassLoader classLoader = GraphicProvider.class.getClassLoader();
-                    try (InputStream is = classLoader.getResourceAsStream(path)) {
-                        if (is == null) {
-                            throw new IllegalArgumentException("Resource not found: " + path);
-                        }
+                    InputStream is = GraphicProvider.class.getClassLoader().getResourceAsStream(formatPath(RESOURCE_PATH, type, i));
+                    is = is == null ? new FileInputStream(formatPath(ALTERNATE_PATH, type, i)) : is;
+                    try {
                         BackgroundFill backgroundFill = new BackgroundFill(new ImagePattern(new Image(is)), CornerRadii.EMPTY, Insets.EMPTY);
                         images.add(new Background(backgroundFill));
                         graphics.put(type, images);
+                    } finally {
+                            is.close();
                     }
                 }
             } catch (Exception e) {
@@ -58,5 +58,9 @@ public class GraphicProvider {
 
     List<Background> getFrames(ObjectType type) {
         return graphics.get(type);
+    }
+
+    private String formatPath(String path, ObjectType type, int frame) {
+        return String.format("%s/%s/%d.bmp", path, type.toString(), frame).toLowerCase();
     }
 }
