@@ -47,7 +47,15 @@ public class Scout extends GameObject {
         return events;
     }
 
-    List<GameEvent> promote(Tile tile) {
+    @Override
+    protected void levelUp(int exp) {
+        int powerup = 3;
+        int rest = experience%powerup;
+        speed += 2 * ((rest+exp)/powerup);
+        experience += exp;
+    }
+
+    private List<GameEvent> promote(Tile tile) {
         List<GameEvent> events = new ArrayList<>();
         events.add(this.selfDestruct());
         GameObject ranger = ObjectType.RANGER.create(area);

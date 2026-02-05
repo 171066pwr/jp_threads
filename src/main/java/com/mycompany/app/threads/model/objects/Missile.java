@@ -4,19 +4,19 @@ import com.mycompany.app.threads.model.map.Area;
 import com.mycompany.app.threads.model.map.GameEvent;
 import com.mycompany.app.threads.model.map.ObjectType;
 
-import java.util.Collections;
 import java.util.List;
 
-public class Cookie extends GameObject {
-    public Cookie(Area area) {
-        super(area, ObjectType.COOKIE);
-        speed = 1;
-        experience = 10;
+public class Missile extends Bullet {
+    public Missile(Area area) {
+        super(area, ObjectType.MISSILE);
+        excludedTargets.clear();
+        speed = 10;
     }
 
     @Override
     protected List<GameEvent> act() {
-        if(experience > 1) experience--;
-        return Collections.EMPTY_LIST;
+        speed ++;
+        setRange(speed);
+        return super.act();
     }
 }

@@ -11,6 +11,7 @@ import static com.mycompany.app.threads.model.map.ObjectType.Subtype.*;
 public enum ObjectType {
     BULLET(Bullet::new, PROJECTILE),
     COOKIE(Cookie::new, PERK),
+    MISSILE(Missile::new, PROJECTILE),
     RANGER(Ranger::new, UNIT),
     SCOUT(Scout::new, UNIT),
     TANK(Tank::new, UNIT);

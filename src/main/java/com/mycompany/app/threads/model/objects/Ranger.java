@@ -5,17 +5,14 @@ import com.mycompany.app.threads.model.map.GameEvent;
 import com.mycompany.app.threads.model.map.ObjectType;
 import com.mycompany.app.threads.model.map.Tile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Ranger extends GameObject {
-    private final List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
+    private final Set<ObjectType> targets = new HashSet<>(Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER));
 
     public Ranger(Area area) {
         super(area, ObjectType.RANGER);
-        speed = 8;
+        speed = 6;
         sight = 10;
     }
 
@@ -49,13 +46,27 @@ public class Ranger extends GameObject {
         return events;
     }
 
+    @Override
+    protected void levelUp(int exp) {
+        int powerup = 5;
+        int rest = experience%powerup;
+        speed += ((rest+exp)/powerup);
+        sight += ((rest+exp)/powerup);
+        experience += exp;
+        if(experience>10){
+            targets.add(ObjectType.TANK);
+        }
+    }
+
     private List<GameEvent> shoot(Tile target) {
         List<GameEvent> events = new ArrayList<>();
         if(target.getObjectType() != null && target.getObjectType() != ObjectType.TANK) {
             destroy(target).ifPresent(events::add);
         } else {
-            GameObject bullet = ObjectType.BULLET.create(area);
+            GameObject bullet = experience < 10 ? ObjectType.BULLET.create(area) : ObjectType.MISSILE.create(area);
             bullet.orientation = this.orientation;
+            ((Bullet)bullet).setRange(sight);
+            ((Bullet)bullet).setOwner(this);
             create(target, bullet).ifPresent(events::add);
         }
         return events;

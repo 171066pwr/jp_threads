@@ -6,10 +6,8 @@ import com.mycompany.app.threads.model.map.*;
 import lombok.Getter;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -17,7 +15,8 @@ public abstract class GameObject implements PausableRunnable, RegulatedRunnable 
     public static final int retryLimit = 20;
     private static final AtomicLong counter = new AtomicLong(0);
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
-    public final long id;
+    @Getter
+    private final long id;
     protected final Area area;
     protected final Random rand = new Random();
 
@@ -28,8 +27,10 @@ public abstract class GameObject implements PausableRunnable, RegulatedRunnable 
     @Getter
     protected Point coordinates = null;
     protected Orientation orientation;
+    @Getter
     protected int experience = 0;
     protected int sight = 0;
+    @Getter
     protected int speed = 10;
 
     public GameObject(Area area, ObjectType type) {
@@ -56,6 +57,7 @@ public abstract class GameObject implements PausableRunnable, RegulatedRunnable 
     public int getState() {
         return orientation.ordinal();
     }
+
     protected List<Tile> probe(Point direction, int depth) {
         return area.probe(coordinates, direction, depth);
     }
@@ -70,7 +72,7 @@ public abstract class GameObject implements PausableRunnable, RegulatedRunnable 
         GameObject object = target.getObject();
         if(target.remove(object)) {
             object.kill();
-            levelUp();
+            levelUp(object.getExperience()/3 +1);
             return Optional.of(new GameEvent(target.coordinates, target.coordinates, object, GameEvent.EventType.DESTRUCTION));
         }
         return Optional.empty();
@@ -103,7 +105,7 @@ public abstract class GameObject implements PausableRunnable, RegulatedRunnable 
         return (roll < 50 ? rotate(-rotation) : rotate(rotation));
     }
 
-    protected boolean spotTarget(Point direction, List<ObjectType> types) {
+    protected boolean spotTarget(Point direction, Collection<ObjectType> types) {
         return probe(direction, sight).stream()
                 .limit(1)
                 .anyMatch(t -> types.contains(t.getObjectType()));
@@ -115,8 +117,8 @@ public abstract class GameObject implements PausableRunnable, RegulatedRunnable 
                 .anyMatch(t -> type.equals(t.getObjectType()));
     }
 
-    protected void levelUp() {
-        experience++;
+    protected void levelUp(int exp) {
+        experience+=exp;
     }
 
     protected void kill() {

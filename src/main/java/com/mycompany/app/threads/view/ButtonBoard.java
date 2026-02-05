@@ -3,13 +3,18 @@ package com.mycompany.app.threads.view;
 import com.mycompany.app.threads.model.concurrency.PausableRunnable;
 import com.mycompany.app.threads.model.concurrency.RegulatedRunnable;
 import com.mycompany.app.threads.model.map.GameEvent;
+import com.mycompany.app.threads.model.map.Tile;
+import com.mycompany.app.threads.model.map.TileInfo;
 import com.mycompany.app.threads.model.objects.Creator;
 import javafx.application.Platform;
+import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Popup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -26,6 +31,7 @@ public class ButtonBoard extends GameBoard {
     private final Label queueLabel;
     private final Label speedLabel;
     private final Label periodLabel;
+    private final PopupPane popupPane;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public ButtonBoard(int width, int height, GraphicProvider graphicProvider, Creator.CreatorOptions creatorOptions) {
@@ -35,6 +41,7 @@ public class ButtonBoard extends GameBoard {
         speedLabel = new Label();
         queueLabel = new Label();
         periodLabel = new Label();
+        popupPane = new PopupPane();
         initComponents(width, height);
     }
 
@@ -45,13 +52,14 @@ public class ButtonBoard extends GameBoard {
         speedLabel = new Label();
         queueLabel = new Label();
         periodLabel = new Label();
+        popupPane = new PopupPane();
         initComponents(width, height);
     }
 
     private void initComponents(int width, int height) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                buttons[i][j] = new GraphicButton("S", 0, null);
+                buttons[i][j] = new GraphicButton("S", 0, new Point(i, j), null);
                 grid.add(buttons[i][j], i, j);
             }
         }
@@ -64,6 +72,7 @@ public class ButtonBoard extends GameBoard {
         menu.add(queueLabel, 25, height+1, 5, 1);
         menu.setHgap(10);
         grid.add(menu, 0, height, width, 1);
+        initializeTooltip();
 
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -76,7 +85,7 @@ public class ButtonBoard extends GameBoard {
 
     @Override
     protected void processEvent(GameEvent event) {
-        log.info("Processing event {}: {} [{};{}] -> [{};{}]", event.object().id, event.eventType(), event.origin().x, event.origin().y, event.target().x, event.target().y);
+        log.info("Processing event {}#{}: {} [{};{}] -> [{};{}]", event.object().getType(), event.object().getId(), event.eventType(), event.origin().x, event.origin().y, event.target().x, event.target().y);
         GraphicButton origin = getButton(event.origin());
         GraphicButton target = getButton(event.target());
         if (event.eventType().change) {
@@ -86,7 +95,7 @@ public class ButtonBoard extends GameBoard {
                 return;
             }
             if(event.object().getType().isUnit()) {
-                target.setLabel(String.valueOf(event.object().id));
+                target.setLabel(String.valueOf(event.object().getId()));
             }
             target.setFrames(graphicProvider.getFrames(event.object().getType()));
             if (origin != target) {
@@ -99,7 +108,13 @@ public class ButtonBoard extends GameBoard {
     }
 
     public Scene createScene() {
-        return new Scene(grid);
+        Scene scene = new Scene(grid);
+        scene.setOnKeyPressed(e ->{
+            if (e.getCode() == KeyCode.P) {
+                    PausableRunnable.flipPaused();
+                }
+            });
+        return scene;
     }
 
     public void repaintAll() {
@@ -118,6 +133,31 @@ public class ButtonBoard extends GameBoard {
         Platform.runLater(new Painter(button));
     }
 
+    private void initializeTooltip() {
+        Popup popup = new Popup();
+        popup.getContent().add(popupPane);
+
+        for(GraphicButton[] arr: buttons) {
+            for(GraphicButton button: arr) {
+                button.hoverProperty().addListener((observable, oldValue, newValue) -> {
+                    if(newValue) {
+                        TileInfo info = area.getTileInfo(button.coordinates);
+                        if(info.isOccupied()) {
+                            popupPane.displayTileInfo(info);
+                            Bounds bnds = button.localToScreen(button.getLayoutBounds());
+                            double x = bnds.getMinX() - (popupPane.getWidth() / 2) + (button.getWidth() / 2);
+                            double y = bnds.getMinY();
+                            popup.show(button, x, y);
+                        }
+                    } else {
+                        popup.hide();
+                    }
+                });
+            }
+
+        }
+    }
+
     private GraphicButton getButton(Point p) {
         return buttons[p.x][p.y];
     }
@@ -132,7 +172,7 @@ public class ButtonBoard extends GameBoard {
     }
 
     private Button createPauseButton() {
-        Button pauseButton = new Button("Pause");
+        Button pauseButton = new Button("Pause (P)");
         pauseButton.setOnAction(
                 (event) -> {
                     PausableRunnable.flipPaused();

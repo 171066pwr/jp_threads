@@ -6,7 +6,7 @@
                     https://logging.apache.org/xml/ns/log4j-config-2.xsd">
     <Appenders>
         <Console name="CONSOLE">
-            <PatternLayout pattern="%d %p %c: %m%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.sss} %p %c{1}: %m%n"/>
         </Console>
     </Appenders>
     <Loggers>

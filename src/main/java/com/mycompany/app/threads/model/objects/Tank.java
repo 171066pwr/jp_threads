@@ -5,16 +5,14 @@ import com.mycompany.app.threads.model.map.GameEvent;
 import com.mycompany.app.threads.model.map.ObjectType;
 import com.mycompany.app.threads.model.map.Tile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Tank extends GameObject {
-    private final List<ObjectType> targets = Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER);
+    private final Set<ObjectType> targets = new HashSet<>(Arrays.asList(ObjectType.SCOUT, ObjectType.RANGER));
 
     public Tank(Area area) {
         super(area, ObjectType.TANK);
-        speed = 6;
+        speed = 4;
         sight = 5;
     }
 
@@ -46,11 +44,13 @@ public class Tank extends GameObject {
         List<GameEvent> events = new ArrayList<>();
         if(tile.isOccupied()) {
             switch (tile.getObjectType()) {
-                case TANK:
-                    return events;
                 case BULLET:
                     destroy(tile).ifPresent(events::add);
                     break;
+                case TANK:
+                    if(experience < 10) {
+                        return events;
+                    }
                 default:
                     GameObject object = tile.getObject();
                     Tile target = object.probe(orientation.getDirection(), 1).stream().findFirst().orElse(tile);
@@ -61,5 +61,16 @@ public class Tank extends GameObject {
         }
         events.addAll(move(tile));
         return events;
+    }
+
+    @Override
+    protected void levelUp(int exp) {
+        int powerup = 5;
+        int rest = experience%powerup;
+        speed += ((rest+exp)/powerup);
+        experience += exp;
+        if(experience > 10) {
+            targets.add(ObjectType.TANK);
+        }
     }
 }

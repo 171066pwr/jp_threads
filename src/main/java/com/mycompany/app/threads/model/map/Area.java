@@ -99,4 +99,8 @@ public class Area {
             listener.acceptEvent(event);
         }
     }
+
+    public TileInfo getTileInfo(Point point) {
+        return new TileInfo(tiles[point.x][point.y]);
+    }
 }

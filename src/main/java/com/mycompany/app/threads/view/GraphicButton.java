@@ -5,18 +5,21 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import lombok.Setter;
 
+import java.awt.*;
 import java.util.List;
 
 public class GraphicButton extends Button {
+    final Point coordinates;
     int state;
     @Setter
     String label = "";
     @Setter
     List<Background> frames;
 
-    public GraphicButton(String text, int state, List<Background> frames) {
+    public GraphicButton(String text, int state, Point coords, List<Background> frames) {
         super(text);
         this.state = state;
+        this.coordinates = coords;
         this.frames = frames;
         initButton();
     }
